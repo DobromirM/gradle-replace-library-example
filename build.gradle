@@ -1,43 +1,29 @@
-plugins {
-    id 'java'
-}
-
+apply plugin: 'java-library'
 apply plugin: 'application'
 apply plugin: 'idea'
+
 group 'org.example'
 version '1.0-SNAPSHOT'
 mainClassName = 'basic.BasicPlane'
-
-apply plugin: 'application'
-apply plugin: 'idea'
-
-group = 'org.swimos'
-idea.module.outputDir file("out/production/classes")
+ext.moduleName = 'basic'
 
 repositories {
-    jcenter()
+    mavenCentral()
+    maven { url 'https://packages.confluent.io/maven/' }
 }
 
-afterEvaluate {
-    compileJava {
-        options.compilerArgs = ['--module-path', classpath.asPath, '-Xlint:all']
-        classpath = files()
-        options.encoding = 'UTF-8'
-        source = sourceSets.main.allJava
-        sourceCompatibility = JavaVersion.VERSION_1_9
-        targetCompatibility = JavaVersion.VERSION_1_9
+configurations {
+    implementation {
+        // Exclude the swim-ws transitive dependency from swim-server
+        exclude(group: 'org.swimos', module: 'swim-ws')
     }
 }
 
-configurations.all {
-    exclude group: 'org.swimos', module: 'swim-ws'
-    exclude group: 'ai.swim', module: 'swim-ws'
-}
-
 dependencies {
-    compile group: 'org.swimos', name: 'swim-api', version: '3.10.0'
-    compile group: 'org.swimos', name: 'swim-server', version: '3.10.0'
-    compile group: 'org.swimos', name: 'swim-client', version: '3.10.0'
-    compile group: 'org.swimos', name: 'swim-deflate', version: '3.9.1'
-    compile files('libs/swim-ws.jar')
+    implementation group: 'org.swimos', name: 'swim-server', version: '3.11.0'
+    implementation group: 'org.swimos', name: 'swim-client', version: '3.11.0'
+    implementation group: 'org.swimos', name: 'swim-deflate', version: '3.11.0'
+
+    // Include the local swim-ws JAR to be used
+    implementation files('libs/swim-ws.jar')
 }
